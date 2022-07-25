@@ -447,8 +447,37 @@ junit.jupiter.displayname.generator.default = \
   org.junit.jupiter.api.DisplayNameGenerator$ReplaceUnderscores
 ```
 
+## JUnit 5 확장 모델
 
+JUnit 4의 확장 모델은 @RunWith(Runner), TestRule, MethodRule.
 
+JUnit 5의 확장 모델은 단 하나, Extension.
+
+- https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html 사용
+
+- https://junit.org/junit5/docs/current/user-guide/#extensions
+
+### Extension 만들기
+
+FindSlowTestExtension.class 참조
+
+### 사용하기 
+
+선언적 방법
+
+@ExtendWith 사용
+
+```java
+@ExtendWith(FindSlowTestExtension.class)
+```
+
+프로그래밍적인 방법
+
+@RegisterExtension 사용
+
+선언적으로 사용하면 커스텀할 수 없음 (ex. 지연시간을 변경하고 싶은 경우)
+
+@RegisterExtension 으로 프로그래밍으로 등록
 
 
 
