@@ -17,6 +17,7 @@ class StudyTest {
     @DisplayName("새로운 스터디 만들기")
     @EnabledOnOs({OS.MAC, OS.LINUX})
     @EnabledOnJre({JRE.JAVA_8, JRE.JAVA_9})
+    @Tag("fast")
     void create_new_study() {
         assumeTrue("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")));
 
@@ -46,6 +47,7 @@ class StudyTest {
     }
 
     @Test
+    @Tag("slow")
     void create_new_study_again() {
         System.out.println("create1");
     }

@@ -212,6 +212,62 @@ assumingThat("LOCAL".equalsIgnoreCase("TEST_ENV"), () -> {
 
 @EnabledIf -> deprecated
 
+## JUnit 5: 태깅과 필터링
+
+### @Tag
+
+여러 개의 테스트를 그룹화하는 기능
+
+intelliJ 에서는 configuration 에서 tags 를 설정하여 실행가능
+
+메이븐에서 테스트 필터링 하는 방법. profile 을 설정 후 테스트
+
+```xml
+<!-- profiles 에서 -->
+<profiles>
+    <profile>
+        <id>default</id>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+        <build>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <groups>fast</groups>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+    <profile>
+        <id>ci</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <groups>fast | slow</groups>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+</profiles>
+```
+
+테스트 실행
+
+```bash
+# maven 예시
+$ ./mvnm test -P default
+```
+
+메이븐 profile 과 표현식
+
+- https://maven.apache.org/guides/introduction/introduction-to-profiles.html
+- https://junit.org/junit5/docs/current/user-guide/#running-tests-tag-expressions
 
 
 
