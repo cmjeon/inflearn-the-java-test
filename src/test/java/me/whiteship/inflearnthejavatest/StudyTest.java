@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StudyTest {
 
     @Test
@@ -59,10 +60,12 @@ class StudyTest {
 
     @Test
     @Tag("slow")
+    @Order(1)
     void create_new_study_again() {
         System.out.println("create1");
     }
 
+    @Order(2)
     @DisplayName("스터디 반복")
     @RepeatedTest(value = 10, name="{displayName}, {currentRepetition}/{totalRepetitions}")
     void repeatTest(RepetitionInfo repetitionInfo) {

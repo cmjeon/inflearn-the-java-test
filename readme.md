@@ -393,6 +393,66 @@ class StudyTest {
 
 PER_CLASS 를 선언하면 @BeforeAll, @AfterAll 이 static 일 필요가 없다.
 
+## JUnit 5 테스트 순서
+
+경우에 따라, 특정 순서대로 테스트를 실행하고 싶을 때, 테스트 메소드를 원하는 순서에 따라 실행하도록 할 수 있다.
+
+@TestInstance(Lifecycle.PER_CLASS) 와 함께 @TestMethodOrder 사용
+
+```java
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class StudyTest {
+    ...
+}
+```
+
+MethodOrderer 구현체를 설정하여 사용할 수 있다.
+
+- Alphanumeric 
+- OrderAnnoation 
+- Random
+
+메소드에 @Order 어노테이션 선언하여 사용
+
+```java
+@Order(1)
+```
+
+@TestMethodOrder 를 사용하면 @BeforeAll, @AfterAll 이 static 으로 선언되어야 한다.
+
+단위테스트는 순서가 필요없고, 유스케이스기반의 테스트는 순서가 중요할 것이다.
+
+## JUnit 5 junit-platform.properties
+
+src/test/resources/junit-platform.properties 로 만든다.
+
+project setting 에 classpath 로 등록해서 사용가능
+
+설정내용
+
+```properties
+# 테스트 인스턴스 라이프사이클 설정
+junit.jupiter.testinstance.lifecycle.default = per_class
+
+# 확장팩 자동 감지 기능
+junit.jupiter.extensions.autodetection.enabled = true
+
+# @Disabled 무시하고 실행하기
+junit.jupiter.conditions.deactivate = org.junit.*DisabledCondition
+
+# 테스트 이름 표기 전략 설정
+# \ 는 줄바꿈
+junit.jupiter.displayname.generator.default = \
+  org.junit.jupiter.api.DisplayNameGenerator$ReplaceUnderscores
+```
+
+
+
+
+
+
+
 
 
 
