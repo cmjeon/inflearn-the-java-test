@@ -368,9 +368,30 @@ ArgumentsAggregator 는 public static 클래스로 구현해야함
 
 - https://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests
 
+## JUnit 5 테스트 인스턴스
 
+JUnit 은 테스트 메소드마다 테스트 인스턴스를 만드는 것이 기본 전략이다.
 
+그래서 테스트 순서를 완전히 보장할 수는 없다.
 
+이 전략을 JUnit 5 에서 변경할 수 있다.
+
+### TestInstance
+
+@TestInstance 를 선언하여 테스트 클래스당 하나의 인스턴스로 사용할 수 있다.
+
+```java
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class StudyTest {
+    ...
+}
+```
+
+이렇게 테스트간 상태를 공유할 수 있음
+
+@BeforeEach, @AfterEach 로 초기화 할 수도 있다.
+
+PER_CLASS 를 선언하면 @BeforeAll, @AfterAll 이 static 일 필요가 없다.
 
 
 
