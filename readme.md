@@ -479,6 +479,21 @@ FindSlowTestExtension.class 참조
 
 @RegisterExtension 으로 프로그래밍으로 등록
 
+## JUnit 5 JUnit 4 마이그레이션
+
+JUnit 4 를 실행하려면 vintage-engine 이 필요하다.
+
+vintage-engine 을 사용하면 JUnit 5 의 junit-platform 으로 JUnit 3, 4 로 작성된 테스트 실행 가능
+
+junit-jupiter-migrationsupport 모듈이 제공하는 EnableRuleMigrationSupport 를 사용하면 여러 타입 지원
+
+
+|JUnit 4 |JUnit 5|
+|---|---|
+|@Category(Class)|@Tag(String)|
+|@RunWith, @Rule, @ClassRule|@ExtendWith, @RegisterExtension|
+|@Ignore|@Disabled|
+|@Before, @After,@BeforeClass, @AfterClass|@BeforeEach, @AfterEach,@BeforeAll, @AfterAll|
 
 
 
