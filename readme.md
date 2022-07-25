@@ -58,3 +58,21 @@ JUnit 5 부터는 클래스, 메소드가 Public 이지 않아도 됨
 메소드에 선언하면 테스트 실행안함
 
 주석말고 사용하자
+
+## JUnit 5 테스트 이름 표시하기
+
+### @DisplayName
+
+테스트 이름을 쉽게 표현할 수 있는 어노테이션
+
+권장됨
+
+### @DisplayNameGeneration
+
+전략에 따라 DisplayName 을 생성하는 어노테이션
+
+전략을 담은 클래스를 임포트
+
+메소드에서 control + shift + r 누르면 테스트 실행 가능 
+
+## 
