@@ -165,6 +165,59 @@ void create_new_study(){
 }
 ```
 
+## JUnit 5 조건에 따라 테스트 실행하기
+
+### assumeTrue
+
+특정한 버전이나 OS나 환경에 따라 다르게 테스트를 실행하는 방법
+
+```java
+assumeTrue("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")));
+```
+
+assumeTrue 의 결과가 true 인 경우에만 이 후 테스트 실행함
+
+System.getenv 의 값은 ~/.zshrc 등에서 `export TEXT_ENV=LOCAL` 식으로 설정할 수 있음
+
+### assumingThat()
+
+```java
+assumingThat("LOCAL".equalsIgnoreCase("TEST_ENV"), () -> {
+    Study actual = new Study(10);
+    assertThat(actual.getLimit()).isGreaterThan(0);
+});
+```
+
+테스트 위에 어노테이션으로 실행가능
+
+### @Enabled, @Disabled
+
+@EnabledOnOS OS 에 따라 실행
+
+@DisabledOnOS OS 에 따라 실행안함
+
+```java
+@EnabledOnOs({OS.MAC, OS.LINUX})
+```
+
+@EnabledOnJre 특정 버전에 따라 실행
+
+```java
+@EnabledOnJre({JRE.JAVA_8, JRE.JAVA_9})
+```
+
+@EnabledIfSystemProperty 시스템속성에 따라 실행
+
+@EnabledIfEnvironmentVariable 환경변수에 따라 실행
+
+@EnabledIf -> deprecated
+
+
+
+
+
+
+
 
 
 참고

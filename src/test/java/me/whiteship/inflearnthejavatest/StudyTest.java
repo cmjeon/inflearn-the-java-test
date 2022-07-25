@@ -1,18 +1,30 @@
 package me.whiteship.inflearnthejavatest;
 
 import org.junit.jupiter.api.*;
-
-import java.time.Duration;
+import org.junit.jupiter.api.condition.EnabledOnJre;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.OS;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class StudyTest {
 
     @Test
     @DisplayName("새로운 스터디 만들기")
+    @EnabledOnOs({OS.MAC, OS.LINUX})
+    @EnabledOnJre({JRE.JAVA_8, JRE.JAVA_9})
     void create_new_study() {
+        assumeTrue("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")));
+
+        assumingThat("LOCAL".equalsIgnoreCase("TEST_ENV"), () -> {
+            Study actual = new Study(10);
+            assertThat(actual.getLimit()).isGreaterThan(0);
+        });
+
         Study actual = new Study(10);
         assertThat(actual.getLimit()).isGreaterThan(0);
 
