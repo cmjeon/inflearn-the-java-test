@@ -5,6 +5,8 @@ import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -50,6 +52,19 @@ class StudyTest {
     @Tag("slow")
     void create_new_study_again() {
         System.out.println("create1");
+    }
+
+    @DisplayName("스터디 반복")
+    @RepeatedTest(value = 10, name="{displayName}, {currentRepetition}/{totalRepetitions}")
+    void repeatTest(RepetitionInfo repetitionInfo) {
+        System.out.println("test " + repetitionInfo.getCurrentRepetition() + "/" + repetitionInfo.getTotalRepetitions());
+    }
+
+    @DisplayName("파라미터 테스트")
+    @ParameterizedTest(name="{index} {displayName} message={0}")
+    @ValueSource(strings = {"날씨가", "많이", "춥춥"})
+    void parameterizedTest(String message) {
+        System.out.println(message);
     }
 
     @BeforeAll
