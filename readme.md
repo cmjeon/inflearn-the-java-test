@@ -75,4 +75,100 @@ JUnit 5 부터는 클래스, 메소드가 Public 이지 않아도 됨
 
 메소드에서 control + shift + r 누르면 테스트 실행 가능 
 
-## 
+## JUnit 5 Assertion
+
+assertion 의 왼쪽이 기대값, 오른쪽이 실제값
+
+```java
+assertEquals(expected, actual);
+```
+
+마지막에는 Supplier 클래스가 들어갈 수 있음
+
+```java
+assertEquals(expected, actual, new Supplier<String>() {
+    @Override
+    public String get() {
+        return "스터디를 처음 만들면 상태값이 DRAFT 여야 한다.";
+    }
+})
+```
+
+람다식으로 줄일 수 있음
+
+```java
+assertEquals(StudyStatus.DRAFT, study.getStatus(), () -> "스터디를 처음 만들면 상태값이 DRAFT 여야 한다.");
+```
+
+그냥 문자열로 써도 되는데 람다식으로 쓰는 이유는? 오류발생 시에만 문자열 연산을 해주기 위해
+
+| 비교항목 | assert |
+|---|---|
+|실제 값이 기대한 값과 같은지 확인|assertEqulas(expected, actual)|
+|값이 null이 아닌지 확인|assertNotNull(actual)|
+|다음 조건이 참(true)인지 확인|assertTrue(boolean)|
+|모든 확인 구문 확인|assertAll(executables...)|
+|예외 발생 확인|assertThrows(expectedType, executable)|
+|특정 시간 안에 실행이 완료되는지 확인|assertTimeout(duration, executable)|
+
+연관된 테스트를 한번에 하는 방법 assertAll 에 포함시킴
+
+```java
+assertAll(
+    () -> assertNotNull(study),
+    () -> assertEquals(StudyStatus.DRAFT, study.getStatus(), () -> "스터디를 처음 만들면 상태값이 DRAFT 여야 한다."),
+    () -> assertTrue(study.getLimit() > 0, "스터디 최대참석인원은 0보다 커야 한다.");
+);
+```
+
+### assertThrows 예외처리를 확인하는 방법
+
+```java
+assertThrows(IllegalArgumentException.class, () -> new Study(-10));
+
+// 메시지 확이 가능
+IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Study(-10));
+String message = exception.getMessage();
+assertEquals("limit 는 0 보다 커야 한다.", message);
+```
+
+### assertTimeout
+
+```java
+assertTimeout(Duration.ofMillis(100), () -> {
+    new Study(10);
+    Thread.sleep(300);
+});
+```
+
+타임아웃이 되면 바로 테스트종료 시키기
+
+```java
+assertTimeoutPreemptively(Duration.ofMillis(100), () -> {
+    new Study(10);
+    Thread.sleep(300);
+});
+```
+
+코드블럭은 ThreadLocal 에서 동작?
+
+jupiter Assertion 외에 AssertJ, Hemcrest, Truth 등의 라이브러리를 사용할 수도 있다.
+
+asertj assertThat 예시
+
+```java
+import static org.assertj.core.api.Assertions.assertThat;
+...
+void create_new_study(){
+    Study actual=new Study(10);
+    assertThat(actual.getLimit()).isGreaterThan(0);
+}
+```
+
+
+
+참고
+
+- https://www.inflearn.com/course/the-java-application-test/
+
+
