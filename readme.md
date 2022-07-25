@@ -269,6 +269,14 @@ $ ./mvnm test -P default
 - https://maven.apache.org/guides/introduction/introduction-to-profiles.html
 - https://junit.org/junit5/docs/current/user-guide/#running-tests-tag-expressions
 
+## JUnit 5 커스텀 태그
+
+JUnit 5 어노테이션을 조합해서 커스텀 태그 생성 가능
+
+커스텀 태그인 FastTest, SlowTest 예시 참조
+
+테스트에 어노테이션을 줄줄이 달 필요 없이 커스텀 태그를 만들어서 사용가능 
+
 
 
 
