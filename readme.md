@@ -289,8 +289,90 @@ JUnit 5 어노테이션을 조합해서 커스텀 태그 생성 가능
 
 테스트에 파라미터를 넣고 파라미터만큼 테스트를 반복시키는 어노테이션
 
-
 ## JUnit 5 테스트 반복하기 2부
+
+### 인자값 소스
+
+valueSource 로 다양한 값을 전달할 수 있음
+
+인자값의 소스를 정하는 다양한 어노테이션
+
+소스에 따라
+
+- @ValueSource : 다양한 값 전달 가능
+    ```java
+    @ValueSource(ints = {10, 20, 40})
+    
+    ```
+- @NullSource, @EmptySource, @NullAndEmptySource : 파라미터가 없는 테스트 
+- @EnumSource
+- @MethodSource
+- @CsvSource
+    ```java
+    @CvsSource
+    ```
+- @CvsFileSource
+- @ArgumentSource
+
+인자값 타입 변환
+
+- https://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests-argument-conversion-implicit
+
+### SimpleArgumentConverter
+
+SimpleArgumentConverter 상속 받은 구현체 제공
+
+@ConvertWith 사용
+
+```java
+void parameterizedTest(@ConvertWith(StudyConverter.class) Study study) {
+    System.out.println(study.getLimit());
+}
+```
+
+하나의 argument 를 받을 때는 argumentConverter 를 사용
+
+### argumentAccessor
+
+두개의 argument 를 받을 때는 2개 인자로 받거나
+
+```java
+@CsvSource({"10, '자바 스터디'", "20, 스프링"})
+void parameterizedTest(Integer limit, String name) {
+    Study study = new Study(limit, name);
+}
+```
+
+argumentAccessor 사용
+
+```java
+@CsvSource({"10, '자바 스터디'", "20, 스프링"})
+void parameterizedTest(ArgumentsAccessor argumentsAccessor) {
+    Study study = new Study(argumentsAccessor.getInteger(0), argumentsAccessor.getString(1))
+}
+```
+
+### ArgumentsAggregator 
+
+ArgumentsAggregator 구현하여 사용
+
+@AggregateWith 사₩
+
+```java
+void parameterizedTest(@AggregateWith(StudyAggregator.class) Study study) {
+    System.out.println(study.getLimit());
+}
+```
+
+ArgumentsAggregator 는 public static 클래스로 구현해야함
+
+- https://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests
+
+
+
+
+
+
 
 
 참고
