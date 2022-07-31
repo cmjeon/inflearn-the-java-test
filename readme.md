@@ -11,8 +11,8 @@
 JUnit 5 의 세부모듈
 
 - Jupiter : TestEngine API 구현체로 JUnit 5 를 제공 -> 주로 사용할 구현체
-- JUnit Platform : 시행가능한 런처 제공, TestEngine API 제공
-- Vintage : JUnit 4, 3 를 지원하느 구현체
+- JUnit Platform : 실행가능한 런처 제공, TestEngine API 제공
+- Vintage : JUnit 4, 3 를 지원하는 구현체
 
 ## JUnit 5 시작하기
 
@@ -126,7 +126,7 @@ assertAll(
 ```java
 assertThrows(IllegalArgumentException.class, () -> new Study(-10));
 
-// 메시지 확이 가능
+// 메시지 확인 가능
 IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Study(-10));
 String message = exception.getMessage();
 assertEquals("limit 는 0 보다 커야 한다.", message);
@@ -150,17 +150,17 @@ assertTimeoutPreemptively(Duration.ofMillis(100), () -> {
 });
 ```
 
-코드블럭은 ThreadLocal 에서 동작?
+### assertj
 
 jupiter Assertion 외에 AssertJ, Hemcrest, Truth 등의 라이브러리를 사용할 수도 있다.
 
-asertj assertThat 예시
+assertj 의 assertThat 예시
 
 ```java
 import static org.assertj.core.api.Assertions.assertThat;
 ...
 void create_new_study(){
-    Study actual=new Study(10);
+    Study actual = new Study(10);
     assertThat(actual.getLimit()).isGreaterThan(0);
 }
 ```
@@ -495,9 +495,352 @@ junit-jupiter-migrationsupport 모듈이 제공하는 EnableRuleMigrationSupport
 |@Ignore|@Disabled|
 |@Before, @After,@BeforeClass, @AfterClass|@BeforeEach, @AfterEach,@BeforeAll, @AfterAll|
 
+# 2부 Mockito
 
+## Mockito 소개
 
+Mock 진짜 객체와 비슷하게 동작하지만 프로그래머가 직접 그 객체의 행동을 관리하는 객체
 
+테스트를 작성하는 자바 개발자 50% 이상 사용하는 Mock 프레임워크
+
+대체제: EasyMock, JMock
+
+외부 라이브러리에 대한 가짜 객체를 만들어놓고 사용하면서 개발할 수 있음
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
+
+### 단위테스트
+
+단위 테스트 : [https://martinfowler.com/bliki/UnitTest.html](https://martinfowler.com/bliki/UnitTest.html)
+
+단위란 무엇인가? 클래스? 메소드? 마틴파울러는 행동을 단위로 보았음
+
+이미 구현된 파일은 Mocking 할 필요가 없지만 외부서비스는 Mocking 을 해야함
+
+예시 : Bango Payment
+
+컨트롤러, 서비스, 리포지토리가 있는데 각각 클래스를 유닛테스트 해야하나?
+
+컨트롤러가 행위의 진입점이고 서비스와 리포지토리가 연관되어 돌아간다면, 컨트롤러에 대한 테스트로도 충분하지 않을까?
+
+본인이 만든 코드인 경우 서비스와 리포지토리를 Mock 으로 만들어야 하는가?
+
+## Mockito 시작하기
+
+스프링부트 프로젝트는 spring-boot-starter-test 에서 추가됨
+
+스프링부트가 아닌 경 의존성 추가
+
+```xml
+<-- core -->
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>3.1.0</version>
+    <scope>test</scope>
+</dependency>
+
+<-- 구현체 -->
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-junit-jupiter</artifactId>
+    <version>3.1.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Mock 테스트 작성할 때 알아야 하는 것
+
+- Mock을 만드는 방법
+- Mock이 어떻게 동작해야 하는지 관리하는 방법
+- Mock의 행동을 검증하는 방법
+
+## Mockito 객체 만들기
+
+```java
+// StudyService
+public StudyService(MemberService memberService, StudyRepository repository) {
+  assert memberService != null;
+  assert repository != null;
+  this.memberService = memberService;
+  this.repository = repository;
+}
+```
+
+MemberService, StudyRepository 가 interface 만 있는 상황
+
+두 클래스의 구현체가 없지만 StudyService 의 동작을 테스트 하고 싶다.
+
+```java
+// StudyServiceTest
+
+class StudySeriviceTest {
+    @Test
+    void createStudyService() {
+        MemberService memberService = mock(MemberService.class);
+        StudyRepository studyRepository = mock(StudyRepository.class);
+        
+        StudyService studyService = new StudyService(memberService, studyRepository)
+    }
+}
+```
+
+### Mock 애노테이션 사용
+
+클래스 전체에서 사용하는 경우
+
+```java
+@ExtendWith(MockitoExtention.class)
+class StudySeriviceTest {
+  @Mock
+  MemberService memberService;
+  @Mock
+  StudyRepository studyRepository;
+  
+  @Test
+  void createStudyService() {
+    MemberService memberService = mock(MemberService.class);
+    StudyRepository studyRepository = mock(StudyRepository.class);
+    
+    StudyService studyService = new StudyService(memberService, studyRepository)
+  }
+}
+```
+
+특정 메소드에서만 사용하는 경우
+
+```java
+@ExtendWith(MockitoExtention.class)
+class StudySeriviceTest {
+  @Test
+  void createStudyService(@Mock MemberService memberService, @Mock StudyRepository studyRepository) {
+    StudyService studyService = new StudyService(memberService, studyRepository);
+    assertNotNull(studyService);
+  }
+}
+```
+
+## Mock 객체 Stubbing
+
+Stub : dummy 객체가 마치 실제로 동작하는 것처럼 보이도록 만들어놓은 것
+
+Mock 객체의 행동
+
+- 리턴 : null 을 리턴(Optional 타입은 Optional.empty 리턴)
+- Primitive 타입은 기본 Primitive 값
+- 콜렉션은 비어있는 콜렉션
+- void 메소드는 아무런 이도 발생하지 않음
+
+```java
+@ExtendWith(MockitoExtention.class)
+class StudySeriviceTest {
+  @Test
+  void createStudyService(@Mock MemberService memberService, @Mock StudyRepository studyRepository) {
+    Optional<Member> optional = memberService.findById(1L); // Optional.empty 리턴
+  }
+}
+```
+
+Mock 에 특정한 리턴이나 예외를 하도록 설정할 수 있다
+
+```java
+@Test
+void createStudyService(@Mock MemberService memberService, @Mock StudyRepository studyRepository){
+    Member member = new Member();
+    member.setId(1L);
+    member.setEmail("dddd@ddd.com");
+    
+    // 1L 를 담아 호출하면 member 객체를 반환해라 stubbing
+    when(memberService.findById(1L)).thenReturn(Optional.of(member));
+}
+```
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#2](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#2)
+
+### argument matchers
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#argument_matchers](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#argument_matchers)
+
+아무 변수를 담아 호출하면 member 객체를 반환해라
+
+```java
+@Test
+void createStudyService(@Mock MemberService memberService, @Mock StudyRepository studyRepository){
+    Member member = new Member();
+    member.setId(1L);
+    member.setEmail("dddd@ddd.com");
+    
+    // 아무 변수를 담아 호출하면 member 객체를 반환해라 stubbing
+    when(memberService.findById(any())).thenReturn(Optional.of(member));
+}
+```
+
+예외를 던지게 할 수 있음
+
+```java
+@Test
+void createStudyService(@Mock MemberService memberService, @Mock StudyRepository studyRepository){
+    Member member = new Member();
+    member.setId(1L);
+    member.setEmail("dddd@ddd.com");
+
+    // 1L 을 담아 호출하면 예외를 반환해라
+    when(memberService.findById(1L)).thenThrow(new RuntimeException());
+  }
+```
+
+void 에 예외를 반환하도록 하기
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#stubbing_with_exceptions](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#stubbing_with_exceptions)
+
+```java
+...
+doThrow(new IlligalArgumentException()).when(memberService).validate(1L);
+
+assertThrow(IllegalArgumentException.class, () -> {
+    memberService.validate(1L);    
+})
+```
+
+메소드가 동일한 매개변수로 여러번 호출될 때 각자 다르게 행동하도록 하기
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#stubbing_consecutive_calls](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#stubbing_consecutive_calls)
+
+```java
+when(memberService.findById(any()))
+        .thenReturn(Optional.of(member))
+        .thenThrow(new RuntimeException())
+        .thenReturn(Optional.empty());
+
+Optional<Member> byID = memberService.findById(1L);
+assertThrow(RuntimeException.class, () -> {
+    memberService.findById(2L);
+});
+
+assertEquals(Optional.empty(), memberService.findById(3L));
+```
+
+## Mock 객체 Stubbing 연습문제
+
+```java
+Study study = new Study(10, "테스트");
+
+// TODO memberService 객체에 findById 메소드를 1L 값으로 호출하면 Optional.of(member) 객체를 리턴하도록 Stubbing
+when(memberService.findById(1L)).thenReturn(Optional.of(member));
+
+// TODO studyRepository 객체에 save 메소드를 study 객체로 호출하면 study 객체 그대로 리턴하도록 Stubbing
+when(studyRepository.save(study)).thenReturn(study);
+
+studyService.createNewStudy(1L, study);
+
+assertNotNull(study.getOwner());
+assertEquals(member, study.getOwner());
+```
+
+## Mock 객체 확인 verifying
+
+Mock 객체가 어떻게 사용되는지 확인할 수 있음
+
+### 특정 메소드가 특정 매개변수로 몇 번 호출되었는지
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#exact_verification](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#exact_verification)
+
+```java
+Study study = new Study(10, "테스트");
+
+// TODO memberService 객체에 findById 메소드를 1L 값으로 호출하면 Optional.of(member) 객체를 리턴하도록 Stubbing
+when(memberService.findById(1L)).thenReturn(Optional.of(member));
+
+// TODO studyRepository 객체에 save 메소드를 study 객체로 호출하면 study 객체 그대로 리턴하도록 Stubbing
+when(studyRepository.save(study)).thenReturn(study);
+
+studyService.createNewStudy(1L, study);
+
+assertNotNull(study.getOwner());
+assertEquals(member, study.getOwner());
+
+verify(memberSerivce, times(1)).createNewStudy(any());
+verify(memberSerivce, never()).validate(any());
+```
+
+### 어떤 순서로 호출했는지
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#in_order_verification](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#in_order_verification)
+
+### 시간안에 호출되었는지
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#verification_timeout](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#verification_timeout)
+
+```java
+//passes when someMethod() is called no later than within 100 ms
+//exits immediately when verification is satisfied (e.g. may not wait full 100 ms)
+verify(mock, timeout(100)).someMethod();
+//above is an alias to:
+verify(mock, timeout(100).times(1)).someMethod();
+
+//passes as soon as someMethod() has been called 2 times under 100 ms
+verify(mock, timeout(100).times(2)).someMethod();
+
+//equivalent: this also passes as soon as someMethod() has been called 2 times under 100 ms
+verify(mock, timeout(100).atLeast(2)).someMethod();
+```
+
+Junit 의 timeout 이 더 나을 수도 있다
+
+### 특정 시점 이후 호출되지 않았는지
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#finding_redundant_invocations](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#finding_redundant_invocations)
+
+```java
+//using mocks
+mockedList.add("one");
+mockedList.add("two");
+
+verify(mockedList).add("one");
+
+//following verification will fail
+verifyNoMoreInteractions(mockedList);
+```
+
+## BDD 스타일 Mockito API
+
+BDD : Behavior-Driven Development
+
+애플리케이션이 어떻게 “행동”해야 하는지에 대한 공통된 이해를 구성하는 방법으로, TDD에서 창안했다.
+
+[https://en.wikipedia.org/wiki/Behavior-driven_development](https://en.wikipedia.org/wiki/Behavior-driven_development)
+
+행동에 대한 스펙
+
+- Title
+- Narrative
+  - As a / I Want / So that
+- Acceptance criteria
+  - Given / When / Then
+
+Mockito는 BddMockito라는 클래스를 통해 BDD 스타일의 API를 제공
+
+[https://javadoc.io/static/org.mockito/mockito-core/3.2.0/org/mockito/BDDMockito.html](https://javadoc.io/static/org.mockito/mockito-core/3.2.0/org/mockito/BDDMockito.html)
+
+BDD Style verification
+
+[https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#29](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#29)
+
+When -> Given
+
+```java
+given(memberService.findById(1L)).willReturn(Optional.of(member));
+given(studyRepository.save(study)).willReturn(study);
+```
+
+Verify -> then
+
+```java
+then(memberService).should(times(1)).notify(study);
+then(memberService).shouldHaveNoMoreInteractions();
+```
+
+## Mockito 연습문제
 
 
 참고
